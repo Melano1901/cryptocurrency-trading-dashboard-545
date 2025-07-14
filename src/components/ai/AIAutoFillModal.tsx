@@ -16,9 +16,13 @@ interface AIAutoFillModalProps {
 
 export function AIAutoFillModal({ isOpen, onClose, context = 'general' }: AIAutoFillModalProps) {
   const { toast } = useToast();
-  const [formType, setFormType] = useState(context);
+  const [formType, setFormType] = useState<'legal-text' | 'procedure' | 'general'>(context);
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleFormTypeChange = (value: string) => {
+    setFormType(value as 'legal-text' | 'procedure' | 'general');
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -56,7 +60,7 @@ export function AIAutoFillModal({ isOpen, onClose, context = 'general' }: AIAuto
         <div className="space-y-6 py-4">
           <div className="space-y-2">
             <Label>Type de formulaire</Label>
-            <Select value={formType} onValueChange={setFormType}>
+            <Select value={formType} onValueChange={handleFormTypeChange}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
