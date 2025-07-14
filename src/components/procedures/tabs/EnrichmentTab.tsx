@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Plus, Upload, Wand2, Database, Scan } from 'lucide-react';
 import { OCRScanner } from '@/components/common/OCRScanner';
+import { useAIAutoFill } from '@/hooks/useAIAutoFill';
+import { AIAutoFillModal } from '@/components/ai/AIAutoFillModal';
 
 interface EnrichmentTabProps {
   onAddProcedure: () => void;
@@ -12,6 +14,7 @@ interface EnrichmentTabProps {
 
 export function EnrichmentTab({ onAddProcedure, onOCRTextExtracted }: EnrichmentTabProps) {
   const [showOCRScanner, setShowOCRScanner] = useState(false);
+  const { isModalOpen, context, openModal, closeModal, handleDataGenerated } = useAIAutoFill();
 
   const handleOCRExtracted = (text: string) => {
     console.log('Texte OCR extrait pour procédure:', text);
@@ -19,6 +22,24 @@ export function EnrichmentTab({ onAddProcedure, onOCRTextExtracted }: Enrichment
       onOCRTextExtracted(text);
     }
     setShowOCRScanner(false);
+  };
+
+  const handleScanOCRClick = () => {
+    // Rediriger vers le formulaire de procédure avec l'onglet OCR actif
+    console.log('Redirection vers onglet OCR du formulaire de procédure');
+    
+    // Dispatch event to open procedure form with OCR tab active
+    const event = new CustomEvent('open-procedure-form-with-ocr');
+    window.dispatchEvent(event);
+    
+    // Trigger the onAddProcedure to open the form
+    onAddProcedure();
+    
+    // After a small delay, activate the OCR tab
+    setTimeout(() => {
+      const ocrTabEvent = new CustomEvent('activate-ocr-tab');
+      window.dispatchEvent(ocrTabEvent);
+    }, 100);
   };
 
   if (showOCRScanner) {
@@ -31,62 +52,12 @@ export function EnrichmentTab({ onAddProcedure, onOCRTextExtracted }: Enrichment
     );
   }
 
-  const actions = [
-    {
-      icon: Plus,
-      title: "Ajouter une procédure",
-      description: "Saisir manuellement une nouvelle procédure administrative",
-      buttonText: "Nouvelle procédure",
-      color: "emerald",
-      onClick: onAddProcedure
-    },
-    {
-      icon: Scan,
-      title: "Scanner un document",
-      description: "Numériser et extraire le texte d'un document avec OCR",
-      buttonText: "Scanner OCR",
-      color: "blue",
-      onClick: () => setShowOCRScanner(true)
-    },
-    {
-      icon: Upload,
-      title: "Import en lot",
-      description: "Importer plusieurs procédures depuis un fichier Excel/CSV",
-      buttonText: "Import CSV/Excel",
-      color: "blue",
-      onClick: () => console.log('Import CSV/Excel')
-    },
-    {
-      icon: Wand2,
-      title: "Auto-remplissage intelligent",
-      description: "Remplissage automatique avec IA",
-      buttonText: "Auto-remplissage",
-      color: "purple",
-      onClick: () => console.log('Auto-remplissage')
-    },
-    {
-      icon: Database,
-      title: "Extraction automatique",
-      description: "Importer et traiter automatiquement des procédures",
-      buttonText: "Extraction auto",
-      color: "orange",
-      onClick: () => console.log('Extraction auto')
-    }
-  ];
-
   const handleImportCSVExcel = () => {
     console.log('Import CSV/Excel pour procédures');
   };
 
   const handleAutoFill = () => {
-    const event = new CustomEvent('open-modal', {
-      detail: {
-        type: 'ai-generation',
-        title: 'Auto-remplissage intelligent',
-        data: { feature: 'auto-fill', context: 'procedures' }
-      }
-    });
-    window.dispatchEvent(event);
+    openModal('procedure');
   };
 
   const handleAutoExtraction = () => {
@@ -99,49 +70,6 @@ export function EnrichmentTab({ onAddProcedure, onOCRTextExtracted }: Enrichment
     });
     window.dispatchEvent(event);
   };
-
-  const actionsConfig = [
-    {
-      icon: Plus,
-      title: "Ajouter une procédure",
-      description: "Saisir manuellement une nouvelle procédure administrative",
-      buttonText: "Nouvelle procédure",
-      color: "emerald",
-      onClick: onAddProcedure
-    },
-    {
-      icon: Scan,
-      title: "Scanner un document",
-      description: "Numériser et extraire le texte d'un document avec OCR",
-      buttonText: "Scanner OCR",
-      color: "blue",
-      onClick: () => setShowOCRScanner(true)
-    },
-    {
-      icon: Upload,
-      title: "Import en lot",
-      description: "Importer plusieurs procédures depuis un fichier Excel/CSV",
-      buttonText: "Import CSV/Excel",
-      color: "blue",
-      onClick: handleImportCSVExcel
-    },
-    {
-      icon: Wand2,
-      title: "Auto-remplissage intelligent",
-      description: "Remplissage automatique avec IA",
-      buttonText: "Auto-remplissage",
-      color: "purple",
-      onClick: handleAutoFill
-    },
-    {
-      icon: Database,
-      title: "Extraction automatique",
-      description: "Importer et traiter automatiquement des procédures",
-      buttonText: "Extraction auto",
-      color: "orange",
-      onClick: handleAutoExtraction
-    }
-  ];
 
   return (
     <div className="space-y-8">
@@ -170,20 +98,20 @@ export function EnrichmentTab({ onAddProcedure, onOCRTextExtracted }: Enrichment
         </Card>
 
         {/* Option OCR */}
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-blue-50 to-purple-50 hover:shadow-xl transition-all duration-300 cursor-pointer group" onClick={() => setShowOCRScanner(true)}>
+        <Card className="shadow-lg border-0 bg-gradient-to-br from-blue-50 to-purple-50 hover:shadow-xl transition-all duration-300 cursor-pointer group" onClick={handleScanOCRClick}>
           <CardHeader className="text-center p-8">
             <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-200 transition-colors">
               <Scan className="w-10 h-10 text-blue-600" />
             </div>
             <CardTitle className="text-2xl text-gray-900 mb-2">Scan OCR</CardTitle>
             <CardDescription className="text-gray-600 text-lg">
-              Scanner et extraire automatiquement le texte d'un document avec reconnaissance optique
+              Scanner et extraire automatiquement le contenu d'un document avec reconnaissance optique
             </CardDescription>
           </CardHeader>
           <CardContent className="px-8 pb-8">
             <Button 
               className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium" 
-              onClick={() => setShowOCRScanner(true)}
+              onClick={handleScanOCRClick}
             >
               <Scan className="w-5 h-5 mr-3" />
               Scanner Document
@@ -196,29 +124,74 @@ export function EnrichmentTab({ onAddProcedure, onOCRTextExtracted }: Enrichment
       <div>
         <h3 className="text-xl font-semibold text-gray-900 mb-6">Options d'enrichissement avancées</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {actionsConfig.slice(2).map((action, index) => (
-            <Card key={index + 2} className="hover:shadow-md transition-shadow cursor-pointer border-gray-200" onClick={action.onClick}>
-              <CardHeader className="text-center">
-                <action.icon className={`w-12 h-12 mx-auto text-${action.color}-600 mb-4`} />
-                <CardTitle className="text-lg">{action.title}</CardTitle>
-                <CardDescription>
-                  {action.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  variant="outline"
-                  className={`w-full border-${action.color}-300 text-${action.color}-700 hover:bg-${action.color}-50`} 
-                  onClick={action.onClick}
-                >
-                  <action.icon className="w-4 h-4 mr-2" />
-                  {action.buttonText}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          <Card className="hover:shadow-md transition-shadow cursor-pointer border-gray-200" onClick={handleImportCSVExcel}>
+            <CardHeader className="text-center">
+              <Upload className="w-12 h-12 mx-auto text-blue-600 mb-4" />
+              <CardTitle className="text-lg">Import en lot</CardTitle>
+              <CardDescription>
+                Importer plusieurs procédures depuis un fichier Excel/CSV
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                variant="outline"
+                className="w-full border-blue-300 text-blue-700 hover:bg-blue-50" 
+                onClick={handleImportCSVExcel}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Import CSV/Excel
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow cursor-pointer border-gray-200" onClick={handleAutoFill}>
+            <CardHeader className="text-center">
+              <Wand2 className="w-12 h-12 mx-auto text-purple-600 mb-4" />
+              <CardTitle className="text-lg">Auto-remplissage intelligent</CardTitle>
+              <CardDescription>
+                Remplissage automatique avec IA
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                variant="outline"
+                className="w-full border-purple-300 text-purple-700 hover:bg-purple-50" 
+                onClick={handleAutoFill}
+              >
+                <Wand2 className="w-4 h-4 mr-2" />
+                Auto-remplissage
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow cursor-pointer border-gray-200" onClick={handleAutoExtraction}>
+            <CardHeader className="text-center">
+              <Database className="w-12 h-12 mx-auto text-orange-600 mb-4" />
+              <CardTitle className="text-lg">Extraction automatique</CardTitle>
+              <CardDescription>
+                Importer et traiter automatiquement des procédures
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                variant="outline"
+                className="w-full border-orange-300 text-orange-700 hover:bg-orange-50" 
+                onClick={handleAutoExtraction}
+              >
+                <Database className="w-4 h-4 mr-2" />
+                Extraction auto
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
+
+      <AIAutoFillModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        context={context}
+        onDataGenerated={handleDataGenerated}
+      />
     </div>
   );
 }

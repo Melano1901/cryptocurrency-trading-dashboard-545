@@ -1,20 +1,20 @@
 
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Wand2, Loader, CheckCircle } from 'lucide-react';
+import { Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { AIAutoFillForm } from './AIAutoFillForm';
+import { AIAutoFillFeatures } from './AIAutoFillFeatures';
+import { AIAutoFillActions } from './AIAutoFillActions';
 
 interface AIAutoFillModalProps {
   isOpen: boolean;
   onClose: () => void;
   context?: 'legal-text' | 'procedure' | 'general';
+  onDataGenerated?: (data: any) => void;
 }
 
-export function AIAutoFillModal({ isOpen, onClose, context = 'general' }: AIAutoFillModalProps) {
+export function AIAutoFillModal({ isOpen, onClose, context = 'general', onDataGenerated }: AIAutoFillModalProps) {
   const { toast } = useToast();
   const [formType, setFormType] = useState<'legal-text' | 'procedure' | 'general'>(context);
   const [prompt, setPrompt] = useState('');
@@ -22,6 +22,34 @@ export function AIAutoFillModal({ isOpen, onClose, context = 'general' }: AIAuto
 
   const handleFormTypeChange = (value: string) => {
     setFormType(value as 'legal-text' | 'procedure' | 'general');
+  };
+
+  const generateMockData = (type: string, userPrompt: string) => {
+    const mockData = {
+      'legal-text': {
+        title: "Loi relative aux procédures administratives",
+        content: "Contenu généré automatiquement basé sur votre description...",
+        category: "Droit administratif",
+        keywords: ["procédures", "administratif", "réglementation"],
+        references: ["Journal Officiel n°45", "Décret n°21-234"]
+      },
+      'procedure': {
+        name: "Demande de certificat de résidence",
+        category: "Documents administratifs",
+        institution: "Mairie",
+        duration: "5 jours ouvrables",
+        cost: "500 DA",
+        description: "Procédure générée automatiquement pour obtenir un certificat de résidence...",
+        requirements: ["Carte d'identité", "Justificatif de domicile", "Formulaire de demande"],
+        steps: ["Retirer le formulaire", "Compléter le dossier", "Déposer la demande", "Récupérer le certificat"]
+      },
+      'general': {
+        content: "Contenu généré basé sur votre description...",
+        suggestions: ["Suggestion 1", "Suggestion 2", "Suggestion 3"]
+      }
+    };
+
+    return mockData[type as keyof typeof mockData] || mockData.general;
   };
 
   const handleGenerate = async () => {
@@ -38,17 +66,30 @@ export function AIAutoFillModal({ isOpen, onClose, context = 'general' }: AIAuto
     
     // Simulation de génération IA
     setTimeout(() => {
+      const generatedData = generateMockData(formType, prompt);
+      
       setIsGenerating(false);
       toast({
         title: "Auto-remplissage généré",
         description: "Les données ont été générées avec succès. Elles seront appliquées au formulaire.",
       });
+      
+      if (onDataGenerated) {
+        onDataGenerated(generatedData);
+      }
+      
       onClose();
     }, 3000);
   };
 
+  const handleClose = () => {
+    setPrompt('');
+    setIsGenerating(false);
+    onClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -58,59 +99,20 @@ export function AIAutoFillModal({ isOpen, onClose, context = 'general' }: AIAuto
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          <div className="space-y-2">
-            <Label>Type de formulaire</Label>
-            <Select value={formType} onValueChange={handleFormTypeChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="legal-text">Texte juridique</SelectItem>
-                <SelectItem value="procedure">Procédure administrative</SelectItem>
-                <SelectItem value="general">Général</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <AIAutoFillForm
+            formType={formType}
+            prompt={prompt}
+            onFormTypeChange={handleFormTypeChange}
+            onPromptChange={setPrompt}
+          />
 
-          <div className="space-y-2">
-            <Label>Description du contenu à générer</Label>
-            <Textarea
-              placeholder="Décrivez le type de contenu que vous souhaitez générer automatiquement..."
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              rows={4}
-              className="resize-none"
-            />
-          </div>
+          <AIAutoFillFeatures />
 
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h4 className="font-medium text-blue-900 mb-2">Fonctionnalités IA disponibles :</h4>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Génération automatique de titres et descriptions</li>
-              <li>• Extraction de mots-clés pertinents</li>
-              <li>• Classification automatique par domaine juridique</li>
-              <li>• Suggestions de références officielles</li>
-            </ul>
-          </div>
-
-          <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={onClose} disabled={isGenerating}>
-              Annuler
-            </Button>
-            <Button onClick={handleGenerate} disabled={isGenerating} className="bg-purple-600 hover:bg-purple-700">
-              {isGenerating ? (
-                <>
-                  <Loader className="w-4 h-4 mr-2 animate-spin" />
-                  Génération en cours...
-                </>
-              ) : (
-                <>
-                  <Wand2 className="w-4 h-4 mr-2" />
-                  Générer avec IA
-                </>
-              )}
-            </Button>
-          </div>
+          <AIAutoFillActions
+            isGenerating={isGenerating}
+            onCancel={handleClose}
+            onGenerate={handleGenerate}
+          />
         </div>
       </DialogContent>
     </Dialog>

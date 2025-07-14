@@ -119,8 +119,8 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
   };
 
   const handleAIAssistantClick = () => {
-    console.log('AI Assistant button clicked - dispatching event');
-    window.dispatchEvent(new CustomEvent('navigate-to-section', { detail: 'ai-search' }));
+    console.log('AI Assistant button clicked - dispatching event to ai-assistant');
+    window.dispatchEvent(new CustomEvent('navigate-to-section', { detail: 'ai-assistant' }));
   };
 
   const quickActions = [
@@ -147,7 +147,6 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
     }
   ];
 
-  // Nouvelles statistiques selon l'image
   const stats = [
     {
       title: getText("totalTexts"),
@@ -216,7 +215,6 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Hero Section with specified green background #40915d */}
       <div className="text-white rounded-lg p-8" style={{ backgroundColor: '#40915d' }}>
         <div className="flex items-center justify-between">
           <div className="flex-1">
@@ -228,7 +226,6 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
             </p>
           </div>
 
-          {/* AI Assistant Card on the right */}
           <div className="ml-8 bg-white/10 backdrop-blur rounded-lg p-6 max-w-sm">
             <div className="text-center">
               <Bot className="w-12 h-12 mx-auto mb-4 text-green-100" />
@@ -250,7 +247,6 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
         </div>
       </div>
 
-      {/* Quick Stats avec les nouvelles valeurs */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
           <Card key={index} className="hover:shadow-md transition-shadow">
@@ -270,7 +266,6 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
         ))}
       </div>
 
-      {/* Quick Actions */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -313,7 +308,6 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
         </CardContent>
       </Card>
 
-      {/* Graphiques enrichis - 4 éléments de l'image */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
@@ -326,9 +320,7 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
           <CardContent>
             <div className="h-64 p-4">
               <div className="h-full relative">
-                {/* Axes */}
                 <div className="absolute bottom-0 left-0 w-full h-full border-l-2 border-b-2 border-gray-300">
-                  {/* Lignes de grille horizontales */}
                   {[0, 25, 50, 75, 100].map((percent) => (
                     <div
                       key={percent}
@@ -341,9 +333,7 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
                     </div>
                   ))}
                   
-                  {/* Points et lignes de données */}
                   <svg className="absolute inset-0 w-full h-full">
-                    {/* Ligne des consultations totales */}
                     <polyline
                       fill="none"
                       stroke="#3B82F6"
@@ -357,7 +347,6 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
                         .join(' ')}
                     />
                     
-                    {/* Points sur la ligne */}
                     {consultationsEvolutionData.map((data, index) => {
                       const x = (index / (consultationsEvolutionData.length - 1)) * 100;
                       const y = 100 - (data.consultations / 2500) * 100;
@@ -374,7 +363,6 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
                     })}
                   </svg>
                   
-                  {/* Labels des mois */}
                   <div className="absolute -bottom-6 w-full flex justify-between text-xs text-gray-500">
                     {consultationsEvolutionData.map((data, index) => (
                       <span key={index}>{data.month}</span>
@@ -382,7 +370,6 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
                   </div>
                 </div>
                 
-                {/* Légende */}
                 <div className="absolute top-0 right-0 text-xs">
                   <div className="flex items-center gap-1 mb-1">
                     <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
@@ -494,7 +481,6 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
         </Card>
       </div>
 
-      {/* Section avec onglets personnels - Nouvelle organisation */}
       <PersonalDashboard />
     </div>
   );

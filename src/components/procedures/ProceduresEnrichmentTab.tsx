@@ -24,10 +24,21 @@ export function ProceduresEnrichmentTab({ onAddProcedure, onOCRTextExtracted }: 
   };
 
   const handleScanOCRClick = () => {
-    // Rediriger vers l'onglet OCR du formulaire de procédure
+    // Rediriger vers le formulaire de procédure avec l'onglet OCR actif
     console.log('Redirection vers onglet OCR du formulaire de procédure');
-    const event = new CustomEvent('open-procedure-form-ocr');
+    
+    // Dispatch event to open procedure form with OCR tab active
+    const event = new CustomEvent('open-procedure-form-with-ocr');
     window.dispatchEvent(event);
+    
+    // Trigger the onAddProcedure to open the form
+    onAddProcedure();
+    
+    // After a small delay, activate the OCR tab
+    setTimeout(() => {
+      const ocrTabEvent = new CustomEvent('activate-ocr-tab');
+      window.dispatchEvent(ocrTabEvent);
+    }, 100);
   };
 
   if (showOCRScanner) {
