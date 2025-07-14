@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileText } from 'lucide-react';
 import { LegalTextsTabs } from './LegalTextsTabs';
 import { LegalTextFormEnhanced } from './LegalTextFormEnhanced';
@@ -14,24 +14,46 @@ interface LegalTextsSectionsProps {
 export function LegalTextsSections({ section, language }: LegalTextsSectionsProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [ocrExtractedText, setOcrExtractedText] = useState<string>('');
+  const [formInputMethod, setFormInputMethod] = useState<'manual' | 'ocr'>('manual');
   const { openModal } = useModals();
 
+  // Écouter l'événement de redirection OCR
+  useEffect(() => {
+    const handleOpenLegalTextFormOCR = () => {
+      console.log('Ouverture du formulaire en mode OCR');
+      setFormInputMethod('ocr');
+      setShowAddForm(true);
+    };
+
+    window.addEventListener('open-legal-text-form-ocr', handleOpenLegalTextFormOCR);
+    
+    return () => {
+      window.removeEventListener('open-legal-text-form-ocr', handleOpenLegalTextFormOCR);
+    };
+  }, []);
+
   const handleAddLegalText = () => {
+    setFormInputMethod('manual');
     setShowAddForm(true);
   };
 
   const handleOCRTextExtracted = (text: string) => {
     console.log('Texte OCR reçu dans LegalTextsSections:', text);
     setOcrExtractedText(text);
+    setFormInputMethod('ocr');
     setShowAddForm(true);
   };
 
   const handleCloseForm = () => {
     setShowAddForm(false);
+    setFormInputMethod('manual');
+    setOcrExtractedText('');
   };
 
   const handleLegalTextSubmitted = (data: any) => {
     setShowAddForm(false);
+    setFormInputMethod('manual');
+    setOcrExtractedText('');
     openModal('notification', {
       type: 'success',
       title: 'Texte juridique ajouté',
@@ -87,6 +109,7 @@ export function LegalTextsSections({ section, language }: LegalTextsSectionsProp
         onClose={handleCloseForm} 
         onSubmit={handleLegalTextSubmitted}
         initialOCRText={ocrExtractedText}
+        initialInputMethod={formInputMethod}
       />
     );
   }

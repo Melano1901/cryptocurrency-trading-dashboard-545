@@ -240,10 +240,7 @@ export function Dashboard({ language = "fr" }: DashboardProps) {
               </p>
               <Button 
                 className="w-full bg-white text-green-600 hover:bg-green-50"
-                onClick={() => {
-                  console.log('Poser une question button clicked');
-                  window.dispatchEvent(new CustomEvent('navigate-to-section', { detail: 'ai-search' }));
-                }}
+                onClick={handleAIAssistantClick}
               >
                 <Bot className="w-4 h-4 mr-2" />
                 {getText("askQuestion")}

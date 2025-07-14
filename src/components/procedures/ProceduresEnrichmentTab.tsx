@@ -6,17 +6,17 @@ import { Plus, Upload, Wand2, Database, Scan } from 'lucide-react';
 import { OCRScanner } from '@/components/common/OCRScanner';
 import { useGlobalActions } from '@/hooks/useGlobalActions';
 
-interface LegalTextsEnrichmentTabProps {
-  onAddLegalText: () => void;
+interface ProceduresEnrichmentTabProps {
+  onAddProcedure: () => void;
   onOCRTextExtracted?: (text: string) => void;
 }
 
-export function LegalTextsEnrichmentTab({ onAddLegalText, onOCRTextExtracted }: LegalTextsEnrichmentTabProps) {
+export function ProceduresEnrichmentTab({ onAddProcedure, onOCRTextExtracted }: ProceduresEnrichmentTabProps) {
   const [showOCRScanner, setShowOCRScanner] = useState(false);
   const actions = useGlobalActions();
 
   const handleOCRExtracted = (text: string) => {
-    console.log('Texte OCR extrait:', text);
+    console.log('Texte OCR extrait pour procédure:', text);
     if (onOCRTextExtracted) {
       onOCRTextExtracted(text);
     }
@@ -24,16 +24,16 @@ export function LegalTextsEnrichmentTab({ onAddLegalText, onOCRTextExtracted }: 
   };
 
   const handleScanOCRClick = () => {
-    // Rediriger vers l'onglet OCR du formulaire de texte juridique
-    console.log('Redirection vers onglet OCR du formulaire de texte juridique');
-    const event = new CustomEvent('open-legal-text-form-ocr');
+    // Rediriger vers l'onglet OCR du formulaire de procédure
+    console.log('Redirection vers onglet OCR du formulaire de procédure');
+    const event = new CustomEvent('open-procedure-form-ocr');
     window.dispatchEvent(event);
   };
 
   if (showOCRScanner) {
     return (
       <OCRScanner
-        title="Scanner un document juridique"
+        title="Scanner un document de procédure"
         onTextExtracted={handleOCRExtracted}
         onClose={() => setShowOCRScanner(false)}
       />
@@ -49,85 +49,31 @@ export function LegalTextsEnrichmentTab({ onAddLegalText, onOCRTextExtracted }: 
       detail: {
         type: 'ai-generation',
         title: 'Auto-remplissage intelligent',
-        data: { feature: 'auto-fill', context: 'legal-texts' }
+        data: { feature: 'auto-fill', context: 'procedures' }
       }
     });
     window.dispatchEvent(event);
   };
-
-  const handleAutoExtraction = () => {
-    const event = new CustomEvent('open-modal', {
-      detail: {
-        type: 'extraction',
-        title: 'Extraction automatique',
-        data: { feature: 'auto-extraction', context: 'legal-texts' }
-      }
-    });
-    window.dispatchEvent(event);
-  };
-
-  const actionsConfig = [
-    {
-      icon: Plus,
-      title: "Ajouter un texte juridique",
-      description: "Saisir manuellement un nouveau texte juridique algérien",
-      buttonText: "Nouveau texte",
-      color: "emerald",
-      onClick: onAddLegalText
-    },
-    {
-      icon: Scan,
-      title: "Scanner un document",
-      description: "Numériser et extraire le texte d'un document avec OCR",
-      buttonText: "Scanner OCR",
-      color: "blue",
-      onClick: handleScanOCRClick
-    },
-    {
-      icon: Upload,
-      title: "Import en lot",
-      description: "Importer plusieurs textes depuis un fichier Excel/CSV",
-      buttonText: "Import CSV/Excel",
-      color: "blue",
-      onClick: handleImportCSVExcel
-    },
-    {
-      icon: Wand2,
-      title: "Auto-remplissage intelligent",
-      description: "Remplissage automatique avec IA",
-      buttonText: "Auto-remplissage",
-      color: "purple",
-      onClick: handleAutoFill
-    },
-    {
-      icon: Database,
-      title: "Extraction automatique",
-      description: "Importer et traiter automatiquement des textes juridiques",
-      buttonText: "Extraction auto",
-      color: "orange",
-      onClick: handleAutoExtraction
-    }
-  ];
 
   return (
     <div className="space-y-8">
       {/* Section principale avec les 2 choix principaux */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Option Manuelle */}
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-emerald-50 to-green-50 hover:shadow-xl transition-all duration-300 cursor-pointer group" onClick={onAddLegalText}>
+        <Card className="shadow-lg border-0 bg-gradient-to-br from-emerald-50 to-green-50 hover:shadow-xl transition-all duration-300 cursor-pointer group" onClick={onAddProcedure}>
           <CardHeader className="text-center p-8">
             <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-emerald-200 transition-colors">
               <Plus className="w-10 h-10 text-emerald-600" />
             </div>
             <CardTitle className="text-2xl text-gray-900 mb-2">Saisie Manuelle</CardTitle>
             <CardDescription className="text-gray-600 text-lg">
-              Saisir manuellement un nouveau texte juridique algérien via le formulaire complet
+              Saisir manuellement une nouvelle procédure administrative via le formulaire complet
             </CardDescription>
           </CardHeader>
           <CardContent className="px-8 pb-8">
             <Button 
               className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium" 
-              onClick={onAddLegalText}
+              onClick={onAddProcedure}
             >
               <Plus className="w-5 h-5 mr-3" />
               Formulaire Manuel
@@ -143,7 +89,7 @@ export function LegalTextsEnrichmentTab({ onAddLegalText, onOCRTextExtracted }: 
             </div>
             <CardTitle className="text-2xl text-gray-900 mb-2">Scan OCR</CardTitle>
             <CardDescription className="text-gray-600 text-lg">
-              Scanner et extraire automatiquement le texte d'un document avec reconnaissance optique
+              Scanner et extraire automatiquement le contenu d'un document de procédure
             </CardDescription>
           </CardHeader>
           <CardContent className="px-8 pb-8">
@@ -162,27 +108,45 @@ export function LegalTextsEnrichmentTab({ onAddLegalText, onOCRTextExtracted }: 
       <div>
         <h3 className="text-xl font-semibold text-gray-900 mb-6">Options d'enrichissement avancées</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {actionsConfig.slice(2).map((action, index) => (
-            <Card key={index + 2} className="hover:shadow-md transition-shadow cursor-pointer border-gray-200" onClick={action.onClick}>
-              <CardHeader className="text-center">
-                <action.icon className={`w-12 h-12 mx-auto text-${action.color}-600 mb-4`} />
-                <CardTitle className="text-lg">{action.title}</CardTitle>
-                <CardDescription>
-                  {action.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  variant="outline"
-                  className={`w-full border-${action.color}-300 text-${action.color}-700 hover:bg-${action.color}-50`} 
-                  onClick={action.onClick}
-                >
-                  <action.icon className="w-4 h-4 mr-2" />
-                  {action.buttonText}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          <Card className="hover:shadow-md transition-shadow cursor-pointer border-gray-200" onClick={handleImportCSVExcel}>
+            <CardHeader className="text-center">
+              <Upload className="w-12 h-12 mx-auto text-blue-600 mb-4" />
+              <CardTitle className="text-lg">Import en lot</CardTitle>
+              <CardDescription>
+                Importer plusieurs procédures depuis un fichier Excel/CSV
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                variant="outline"
+                className="w-full border-blue-300 text-blue-700 hover:bg-blue-50" 
+                onClick={handleImportCSVExcel}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Import CSV/Excel
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-md transition-shadow cursor-pointer border-gray-200" onClick={handleAutoFill}>
+            <CardHeader className="text-center">
+              <Wand2 className="w-12 h-12 mx-auto text-purple-600 mb-4" />
+              <CardTitle className="text-lg">Auto-remplissage intelligent</CardTitle>
+              <CardDescription>
+                Remplissage automatique avec IA
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                variant="outline"
+                className="w-full border-purple-300 text-purple-700 hover:bg-purple-50" 
+                onClick={handleAutoFill}
+              >
+                <Wand2 className="w-4 h-4 mr-2" />
+                Auto-remplissage
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
