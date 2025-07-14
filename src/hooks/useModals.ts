@@ -22,6 +22,7 @@ const initialModals: ModalState = {
   management: { isOpen: false, type: 'domain' },
   workflow: { isOpen: false, data: null },
   aiGeneration: { isOpen: false, type: 'form', data: null },
+  aiAutoFill: { isOpen: false, context: 'general' },
   userManagement: { isOpen: false, action: 'create', user: null },
   alertManagement: { isOpen: false, alert: null },
   sessionManagement: { isOpen: false, data: null },

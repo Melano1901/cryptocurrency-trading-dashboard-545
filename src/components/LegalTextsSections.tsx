@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileText } from 'lucide-react';
 import { LegalTextsTabs } from './LegalTextsTabs';
 import { LegalTextFormEnhanced } from './LegalTextFormEnhanced';
@@ -14,9 +13,25 @@ interface LegalTextsSectionsProps {
 export function LegalTextsSections({ section, language }: LegalTextsSectionsProps) {
   const [showAddForm, setShowAddForm] = useState(false);
   const [ocrExtractedText, setOcrExtractedText] = useState<string>('');
+  const [activeFormTab, setActiveFormTab] = useState<string>('general');
   const { openModal } = useModals();
 
+  // Écouter l'événement de redirection OCR
+  useEffect(() => {
+    const handleOCRRedirect = () => {
+      setShowAddForm(true);
+      setActiveFormTab('ocr'); // Activer l'onglet OCR
+    };
+
+    window.addEventListener('navigate-to-legal-text-form-ocr', handleOCRRedirect);
+
+    return () => {
+      window.removeEventListener('navigate-to-legal-text-form-ocr', handleOCRRedirect);
+    };
+  }, []);
+
   const handleAddLegalText = () => {
+    setActiveFormTab('general'); // Onglet par défaut
     setShowAddForm(true);
   };
 
@@ -28,10 +43,12 @@ export function LegalTextsSections({ section, language }: LegalTextsSectionsProp
 
   const handleCloseForm = () => {
     setShowAddForm(false);
+    setActiveFormTab('general');
   };
 
   const handleLegalTextSubmitted = (data: any) => {
     setShowAddForm(false);
+    setActiveFormTab('general');
     openModal('notification', {
       type: 'success',
       title: 'Texte juridique ajouté',
@@ -87,6 +104,7 @@ export function LegalTextsSections({ section, language }: LegalTextsSectionsProp
         onClose={handleCloseForm} 
         onSubmit={handleLegalTextSubmitted}
         initialOCRText={ocrExtractedText}
+        defaultActiveTab={activeFormTab}
       />
     );
   }
