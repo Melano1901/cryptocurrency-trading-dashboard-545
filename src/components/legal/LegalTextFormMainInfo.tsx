@@ -46,7 +46,7 @@ export function LegalTextFormMainInfo({ formData, onInputChange }: LegalTextForm
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
             <Label htmlFor="type" className="text-sm font-medium text-gray-700">Type de texte *</Label>
-            <Select onValueChange={(value) => onInputChange('type', value)}>
+            <Select onValueChange={(value) => onInputChange('type', value)} value={formData.type}>
               <SelectTrigger className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500">
                 <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>
@@ -62,7 +62,7 @@ export function LegalTextFormMainInfo({ formData, onInputChange }: LegalTextForm
           </div>
           <div className="space-y-2">
             <Label htmlFor="domain" className="text-sm font-medium text-gray-700">Domaine juridique *</Label>
-            <Select onValueChange={(value) => onInputChange('domain', value)}>
+            <Select onValueChange={(value) => onInputChange('domain', value)} value={formData.domain}>
               <SelectTrigger className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500">
                 <SelectValue placeholder="Sélectionner" />
               </SelectTrigger>

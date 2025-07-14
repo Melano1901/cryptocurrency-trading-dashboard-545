@@ -1,14 +1,11 @@
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { LegalTextFormHeader } from './legal/LegalTextFormHeader';
 import { LegalTextFormInputMethodSelector } from './legal/LegalTextFormInputMethodSelector';
 import { LegalTextFormOCRSection } from './legal/LegalTextFormOCRSection';
-import { LegalTextFormMainInfo } from './legal/LegalTextFormMainInfo';
-import { LegalTextFormMetadata } from './legal/LegalTextFormMetadata';
-import { LegalTextFormContent } from './legal/LegalTextFormContent';
+import { LegalTextFormContainer } from './legal/LegalTextFormContainer';
+import { LegalTextFormProvider } from './legal/LegalTextFormProvider';
 
 interface LegalTextFormEnhancedProps {
   onClose: () => void;
@@ -26,42 +23,27 @@ export function LegalTextFormEnhanced({
   const { toast } = useToast();
   const [inputMethod, setInputMethod] = useState<'manual' | 'ocr'>(initialInputMethod);
   const [showOCRScanner, setShowOCRScanner] = useState(false);
-  const [formData, setFormData] = useState({
-    title: '',
-    type: '',
-    domain: '',
-    reference: '',
-    date: '',
-    content: '',
-    source: '',
-    keywords: '',
-    description: '',
-    status: 'draft'
-  });
+  const [initialFormData, setInitialFormData] = useState<any>({});
 
   useEffect(() => {
     if (initialOCRText) {
       import('@/utils/ocrFormFiller').then(({ extractLegalTextData }) => {
         const extractedData = extractLegalTextData(initialOCRText);
         console.log('Pré-remplissage avec OCR:', extractedData);
-        setFormData(prev => ({ ...prev, ...extractedData }));
+        setInitialFormData(extractedData);
       }).catch(() => {
-        setFormData(prev => ({ ...prev, content: initialOCRText }));
+        setInitialFormData({ content: initialOCRText });
       });
     }
   }, [initialOCRText]);
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
 
   const handleOCRTextExtracted = (extractedText: string) => {
     import('@/utils/ocrFormFiller').then(({ extractLegalTextData }) => {
       const extractedData = extractLegalTextData(extractedText);
       console.log('Données extraites par OCR:', extractedData);
-      setFormData(prev => ({ ...prev, ...extractedData }));
+      setInitialFormData(extractedData);
     }).catch(() => {
-      setFormData(prev => ({ ...prev, content: extractedText }));
+      setInitialFormData({ content: extractedText });
     });
     setShowOCRScanner(false);
     setInputMethod('manual');
@@ -74,13 +56,11 @@ export function LegalTextFormEnhanced({
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Données finales du formulaire:', formData);
-    onSubmit(formData);
+  const handleFormSubmit = (data: any) => {
+    onSubmit(data);
     toast({
       title: "Texte juridique ajouté",
-      description: `Le texte "${formData.title}" a été ajouté avec succès.`,
+      description: `Le texte "${data.title}" a été ajouté avec succès.`,
     });
   };
 
@@ -103,38 +83,12 @@ export function LegalTextFormEnhanced({
         )}
 
         {inputMethod === 'manual' && (
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <LegalTextFormMainInfo 
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                />
-              </div>
-
-              <div className="space-y-6">
-                <LegalTextFormMetadata 
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                />
-              </div>
-            </div>
-
-            <LegalTextFormContent 
-              formData={formData}
-              onInputChange={handleInputChange}
+          <LegalTextFormProvider initialData={initialFormData}>
+            <LegalTextFormContainer 
+              onClose={onClose}
+              onSubmit={handleFormSubmit}
             />
-
-            <div className="flex justify-end gap-4 pt-6">
-              <Button type="button" variant="outline" onClick={onClose} className="px-8">
-                Annuler
-              </Button>
-              <Button type="submit" className="px-8 bg-emerald-600 hover:bg-emerald-700 gap-2">
-                <Save className="w-4 h-4" />
-                Enregistrer le texte
-              </Button>
-            </div>
-          </form>
+          </LegalTextFormProvider>
         )}
       </div>
     </div>

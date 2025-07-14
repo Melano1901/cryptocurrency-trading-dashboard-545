@@ -41,7 +41,7 @@ export function LegalTextFormMetadata({ formData, onInputChange }: LegalTextForm
         </div>
         <div className="space-y-2">
           <Label htmlFor="status" className="text-sm font-medium text-gray-700">Statut</Label>
-          <Select onValueChange={(value) => onInputChange('status', value)} defaultValue="draft">
+          <Select onValueChange={(value) => onInputChange('status', value)} value={formData.status}>
             <SelectTrigger className="border-gray-200 focus:border-emerald-500 focus:ring-emerald-500">
               <SelectValue />
             </SelectTrigger>
