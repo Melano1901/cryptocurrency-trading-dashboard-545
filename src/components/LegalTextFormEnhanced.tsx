@@ -13,11 +13,12 @@ interface LegalTextFormEnhancedProps {
   onClose: () => void;
   onSubmit: (data: any) => void;
   initialOCRText?: string;
+  defaultActiveTab?: string;
 }
 
-export function LegalTextFormEnhanced({ onClose, onSubmit, initialOCRText }: LegalTextFormEnhancedProps) {
+export function LegalTextFormEnhanced({ onClose, onSubmit, initialOCRText, defaultActiveTab }: LegalTextFormEnhancedProps) {
   const { toast } = useToast();
-  const [inputMethod, setInputMethod] = useState<'manual' | 'ocr'>('manual');
+  const [inputMethod, setInputMethod] = useState<'manual' | 'ocr'>(defaultActiveTab === 'ocr' ? 'ocr' : 'manual');
   const [showOCRScanner, setShowOCRScanner] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
